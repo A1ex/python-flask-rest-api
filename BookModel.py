@@ -18,8 +18,11 @@ class Book (db.Model):
         db.session.commit()
     
     def get_all_books():
-        return Book.query.all()
+        return [Book.json(book) for book in Book.query.all()]
     
+    def json(self):
+        return {'name':self.name, 'price': self.price, 'isbn': self.isbn}
+
     def __repr__(self):
         book_object={
             'name':self.name,
@@ -29,5 +32,26 @@ class Book (db.Model):
         return json.dumps(book_object)
     
     def get_book(_isbn):
-        return Book.query.filter_by(isbn=_isbn).first()
+        return Book.json(Book.query.filter_by(isbn=_isbn).first())
+
+    def delete_book(_isbn):
+        is_successful = Book.query.filter_by(isbn=_isbn).delete()
+        db.session.commit()
+        return bool(is_successful)
+
+    def update_book_price (_isbn, _price):
+        book_to_update=Book.query.filter_by(isbn=_isbn).first()
+        book_to_update.price=_price
+        db.session.commit()
+
+    def update_book_name (_isbn, _name):
+        book_to_update=Book.query.filter_by(isbn=_isbn).first()
+        book_to_update.name=_name
+        db.session.commit()
+
+    def replace_book (_isbn, _name, _price):
+        book_to_update=Book.query.filter_by(isbn=_isbn).first()
+        book_to_update.name=_name
+        book_to_update.price=_price
+        db.session.commit()        
  
